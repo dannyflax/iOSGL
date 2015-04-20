@@ -343,16 +343,18 @@ demoModel* mdlLoadModel(const char* filepathname)
 demoModel* loadFile(const char* filepathname){
     
     
-  //  const char* contents;
-    
     FILE* f = fopen(filepathname, "r");
     char as[200] = "";
-  
+    
     
     GLuint vsize = 0;
     GLuint nsize = 0;
     GLuint tsize = 0;
     GLuint isize = 0;
+    
+    /*
+     * Scan through the .obj file and determine number of verticies, texture coords, and normals
+     */
     
     while (fgets(as,200,f)!=NULL){
         
@@ -438,7 +440,6 @@ demoModel* loadFile(const char* filepathname){
                         
                       
                         textures[i_t] = strtof(comp,NULL);
-                      //  printf("%f, %i\n",textures[0],i_t);
                         i_t++;
                         
                         
@@ -452,14 +453,12 @@ demoModel* loadFile(const char* filepathname){
                 char* comp = strtok(as," ");
                 int i = 0;
                 while(comp!=NULL){
-                    //printf("VASF\n");
                     
                     if(i!=0){
                         
                         vertices[i_v] = strtof(comp,NULL);
-                       // printf("%f\n",vertices[i_v]);
+                      
                         i_v++;
-                        
                         
                     }
                     
@@ -592,7 +591,7 @@ demoModel* loadFile(const char* filepathname){
     int i;
 
     i = 0;
-    //printf("%i,%lu",isize,sizeof(vertices));
+    
     while(i<isize){
         elementArray[i] = i;
         posArray[i*3] = vertices[((v_order[i]-1)*3)] * 100.0f;
@@ -607,43 +606,13 @@ demoModel* loadFile(const char* filepathname){
         
         if(txt!=0){
         texcoordArray[i*2] = textures[((t_order[i]-1)*2)];
-        texcoordArray[i*2 + 1] = textures[((t_order[i]-1)*2)+1];
+        texcoordArray[i*2 + 1] = 1.0 -
+            textures[((t_order[i]-1)*2)+1];
         }
         
         i++;
     }
-   
-    /*
-    i = 0;
-    while(i<isize){
-        printf("Text: %f\n",textf[i]);
-        i++;
-    }
-    i = 0;
-    while(i<isize){
-        printf("Vert: %f\n",posArray[i]);
-        i++;
-    }
-    i = 0;
-    while(i<isize){
-        printf("Norm: %f\n",normalArray[i]);
-        i++;
-    }
-     */
-   /*
-    i = 0;
-    while(i<isize){
-        printf("Ind: %i\n",indf[i]);
-        i++;
-    }
-   */
-    
-    
-    
-    
-    
-    
-    
+ 
     
     
     demoModel* model = (demoModel*) calloc(sizeof(demoModel), 1);
@@ -671,13 +640,13 @@ demoModel* loadFile(const char* filepathname){
 	memcpy(model->positions, posArray, model->positionArraySize);
 	
     if(txt!=0){
-    //Do the same thing with texture coordinates
-	model->texcoordType = GL_FLOAT;
-    //U,V coordinates (2)
-	model->texcoordSize = 2;
-	model->texcoordArraySize = (int)sizeof(texcoordArray);
-	model->texcoords = (GLubyte*)malloc(model->texcoordArraySize);
-	memcpy(model->texcoords, texcoordArray, model->texcoordArraySize );
+        //Do the same thing with texture coordinates
+        model->texcoordType = GL_FLOAT;
+        //U,V coordinates (2)
+        model->texcoordSize = 2;
+        model->texcoordArraySize = (int)sizeof(texcoordArray);
+        model->texcoords = (GLubyte*)malloc(model->texcoordArraySize);
+        memcpy(model->texcoords, texcoordArray, model->texcoordArraySize );
     }
     //And the normals
 	model->normalType = GL_FLOAT;
@@ -692,8 +661,6 @@ demoModel* loadFile(const char* filepathname){
 	memcpy(model->elements, elementArray, model->elementArraySize);
 	
 	
-	
-	
 	model->numElements = (int)sizeof(elementArray) / sizeof(GLushort);
 	//Note that the indicies are stored as shorts
     model->elementType = GL_UNSIGNED_SHORT;
@@ -704,11 +671,7 @@ demoModel* loadFile(const char* filepathname){
     model->numVertcies = model->positionArraySize / (model->positionSize * sizeof(GLfloat));
 	
     model->primType = GL_TRIANGLES;
-    
 
-    
-    
-    
     
     return model;
 }

@@ -77,8 +77,16 @@ void main (void)
 {
 	// Transform the vertex by the model view projection matrix so
 	// the polygon shows up in the right place
-	gl_Position	= modelViewProjectionMatrix * inPosition;
-	
+    
+    vec4 pos = inPosition;
+    
+    float scalar = 100.0;
+    
+    pos.x*=scalar;
+    pos.y*=scalar;
+    pos.z*=scalar;
+    
+	gl_Position = (modelViewProjectionMatrix * pos);
     
     varNormal = normalize(normalMatrix * inNormal);
     

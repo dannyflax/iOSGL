@@ -90,23 +90,6 @@ enum {
 
 @implementation OpenGLRenderer
 
-#if RENDER_REFLECTION
-demoModel* m_quadModel;
-GLenum m_quadPrimType;
-GLenum m_quadElementType;
-GLuint m_quadNumElements;
-GLuint m_reflectVAOName;
-GLuint m_reflectTexName;
-GLuint m_reflectFBOName;
-GLuint m_reflectWidth;
-GLuint m_reflectHeight;
-GLuint m_reflectPrgName;
-GLint  m_reflectModelViewUniformIdx;
-GLint  m_reflectProjectionUniformIdx;
-GLint m_reflectNormalMatrixUniformIdx;
-#endif // RENDER_REFLECTION
-
-
 GLuint m_characterPrgName;
 GLint m_characterMvpUniformIdx;
 GLuint m_characterVAOName;
@@ -139,78 +122,34 @@ GLboolean m_useVBOs;
 	GLfloat modelView[16];
 	GLfloat projection[16];
 	GLfloat mvp[16];
-	
-#if RENDER_REFLECTION
-	
-	// Bind our refletion FBO and render our scene
-	
-	glBindFramebuffer(GL_FRAMEBUFFER, m_reflectFBOName);
-	
-	
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glViewport(0, 0, m_reflectWidth, m_reflectHeight);
-	
-	mtxLoadPerspective(projection, 90, (float)m_reflectWidth / (float)m_reflectHeight,5.0,10000);
 
-	mtxLoadIdentity(modelView);
-	
-	// Invert Y so that everything is rendered up-side-down
-	// as it should with a reflection
-	
-	mtxScaleApply(modelView, 1, -1, 1);
-	mtxTranslateApply(modelView, 0, 300, -800);
-	mtxRotateXApply(modelView, -90.0f);	
-	mtxRotateApply(modelView, m_characterAngle, 0.7, 0.3, 1);	
-	
-	mtxMultiply(mvp, projection, modelView);
-	
-	// Use the program that we previously created
-	glUseProgram(m_characterPrgName);
-	
-	// Set the modelview projection matrix that we calculated above
-	// in our vertex shader
-	glUniformMatrix4fv(m_characterMvpUniformIdx, 1, GL_FALSE, mvp);
-	
-	// Bind our vertex array object
-	glBindVertexArray(m_characterVAOName);
-	
-	// Bind the texture to be used
-	glBindTexture(GL_TEXTURE_2D, m_characterTexName);
-	
-	// Cull front faces now that everything is flipped 
-	// with our inverted reflection transformation matrix
-	glCullFace(GL_FRONT);
-	
-	// Draw our object
-	if(m_useVBOs)
-	{
-		glDrawElements(GL_TRIANGLES, m_characterNumElements, m_characterElementType, 0);
-	}
-	else 
-	{
-		glDrawElements(GL_TRIANGLES, m_characterNumElements, m_characterElementType, m_characterModel->elements);
-	}
-	
-	// Bind our default FBO to render to the screen
-	glBindFramebuffer(GL_FRAMEBUFFER, m_defaultFBOName);
-
-	glViewport(0, 0, m_viewWidth, m_viewHeight);
-	
-#endif // RENDER_REFLECTION
-	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	// Use the program for rendering our character
 	glUseProgram(m_characterPrgName);
 	
+    
+    
 	// Calculate the projection matrix
-	mtxLoadPerspective(projection, 90, (float)m_viewWidth / (float)m_viewHeight,5.0,10000);
+	mtxLoadPerspective(projection, 30, (float)m_viewWidth / (float)m_viewHeight,5.0,10000);
 	
+    //mtxRotateYApply(projection, M_PI);
+    
+    
 	// Calculate the modelview matrix to render our character 
 	//  at the proper position and rotation
-	mtxLoadTranslate(modelView, 0, 150, -450);
-	mtxRotateXApply(modelView, -90.0f);	
-	mtxRotateApply(modelView, m_characterAngle, 0.7, 0.3, 1);
+	mtxLoadTranslate(modelView, 0, 150, -2050);
+    
+    mtxRotateYApply(modelView, m_characterAngle);
+    
+	mtxRotateXApply(modelView, 50.0f);
+    
+    //mtxRotateZApply(modelView, M_PI);
+    
+    
+    
+    
+    //mtxRotateApply(modelView, m_characterAngle, 0.7, 0.3, 1);
 	
 	// Multiply the modelview and projection matrix and set it in the shader
 	mtxMultiply(mvp, projection, modelView);
@@ -221,10 +160,9 @@ GLboolean m_useVBOs;
 	
 	// Bind the texture to be used
 	glBindTexture(GL_TEXTURE_2D, m_characterTexName);
-	
+    
 	// Bind our vertex array object
 	glBindVertexArray(m_characterVAOName);
-    
     
     float normalMatrix2[9];
 	
@@ -258,63 +196,6 @@ GLboolean m_useVBOs;
 		glDrawElements(GL_TRIANGLES, m_characterNumElements, m_characterElementType, m_characterModel->elements);
 	}
 	
-#if RENDER_REFLECTION
-	
-	// Use our shader for reflections
-	glUseProgram(m_reflectPrgName);
-	
-	mtxLoadTranslate(modelView, 0, -50, -250);
-	
-	// Multiply the modelview and projection matrix and set it in the shader
-	mtxMultiply(mvp, projection, modelView);
-	
-	// Set the modelview matrix that we calculated above
-	// in our vertex shader
-	glUniformMatrix4fv(m_reflectModelViewUniformIdx, 1, GL_FALSE, modelView);
-	
-	// Set the projection matrix that we calculated above
-	// in our vertex shader
-	glUniformMatrix4fv(m_reflectProjectionUniformIdx, 1, GL_FALSE, mvp);
-	
-	float normalMatrix[9];
-	
-	// Calculate the normal matrix so that we can 
-	// generate texture coordinates in our fragment shader
-	
-	// The normal matrix needs to be the inverse transpose of the 
-	//   top left 3x3 portion of the modelview matrix
-	// We don't need to calculate the inverse transpose matrix
-	//   here because this will always be an orthonormal matrix
-	//   thus the the inverse tranpose is the same thing
-	mtx3x3FromTopLeftOf4x4(normalMatrix, modelView);
-	
-	// Set the normal matrix for our shader to use
-	glUniformMatrix3fv(m_reflectNormalMatrixUniformIdx, 1, GL_FALSE, normalMatrix);
-		
-	// Bind the texture we rendered-to above (i.e. the reflection texture)
-	glBindTexture(GL_TEXTURE_2D, m_reflectTexName);
-
-#if !ESSENTIAL_GL_PRACTICES_IOS
-	// Generate mipmaps from the rendered-to base level
-	//   Mipmaps reduce shimmering pixels due to better filtering
-	// This call is not accelarated on iOS 4 so do not use
-	//   mipmaps here
-	glGenerateMipmap(GL_TEXTURE_2D);
-#endif
-	
-	// Bind our vertex array object
-	glBindVertexArray(m_reflectVAOName);
-	
-	// Draw our refection plane
-	if(m_useVBOs)
-	{
-		glDrawElements(GL_TRIANGLES, m_quadNumElements, m_quadElementType, 0);
-	}
-	else 
-	{
-		glDrawElements(GL_TRIANGLES, m_quadNumElements, m_quadElementType, m_quadModel->elements);
-	}
-#endif // RENDER_REFLECTION
 	
 	// Update the angle so our character keeps spinning
 	m_characterAngle++;
@@ -942,7 +823,7 @@ static GLsizei GetGLTypeSize(GLenum type)
 		// Load our character model //
 		//////////////////////////////
 		
-		filePathName = [[NSBundle mainBundle] pathForResource:@"monkey" ofType:@"obj"];
+		filePathName = [[NSBundle mainBundle] pathForResource:@"finaltop2" ofType:@"obj"];
 		m_characterModel = loadFile([filePathName cStringUsingEncoding:NSASCIIStringEncoding]);
 		
 		// Build Vertex Buffer Objects (VBOs) and Vertex Array Object (VAOs) with our model data
@@ -966,7 +847,7 @@ static GLsizei GetGLTypeSize(GLenum type)
 		// Load texture for our character //
 		////////////////////////////////////
 		
-		filePathName = [[NSBundle mainBundle] pathForResource:@"demon" ofType:@"png"];
+		filePathName = [[NSBundle mainBundle] pathForResource:@"DreidelTextureMap" ofType:@"png"];
 		demoImage *image = imgLoadImage([filePathName cStringUsingEncoding:NSASCIIStringEncoding], false);
 		
 		// Build a texture object with our image data
@@ -1002,90 +883,6 @@ static GLsizei GetGLTypeSize(GLenum type)
 		{
 			NSLog(@"No modelViewProjectionMatrix in character shader");
 		}
-		
-		
-#if RENDER_REFLECTION
-		
-		m_reflectWidth = 512;
-		m_reflectHeight = 512;
-		
-		////////////////////////////////////////////////
-		// Load a model for a quad for the reflection //
-		////////////////////////////////////////////////
-		
-		m_quadModel = mdlLoadQuadModel();
-		// Build Vertex Buffer Objects (VBOs) and Vertex Array Object (VAOs) with our model data
-		m_reflectVAOName = [self buildVAO:m_quadModel];
-		
-		// Cache the number of element and primType to use later in our glDrawElements calls
-		m_quadNumElements = m_quadModel->numElements;
-		m_quadPrimType    = m_quadModel->primType;
-		m_quadElementType = m_quadModel->elementType;
-		
-		if(m_useVBOs)
-		{
-			//If we're using VBOs we can destroy all this memory since buffers are
-			// loaded into GL and we've saved anything else we need 
-			mdlDestroyModel(m_quadModel);
-			m_quadModel = NULL;
-		}
-		
-		/////////////////////////////////////////////////////
-		// Create texture and FBO for reflection rendering //
-		/////////////////////////////////////////////////////
-		
-		m_reflectFBOName = [self buildFBOWithWidth:m_reflectWidth andHeight:m_reflectHeight];
-		
-		// Get the texture we created in buildReflectFBO by binding the 
-		// reflection FBO and getting the buffer attached to color 0
-		glBindFramebuffer(GL_FRAMEBUFFER, m_reflectFBOName);
-		
-		GLint iReflectTexName;
-		
-		glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                                              GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME,
-                                              &iReflectTexName);
-		
-		m_reflectTexName = ((GLuint*)(&iReflectTexName))[0];
-		
-		/////////////////////////////////////////////////////
-		// Load and setup shaders for reflection rendering //
-		/////////////////////////////////////////////////////
-		
-		filePathName = [[NSBundle mainBundle] pathForResource:@"reflect" ofType:@"vsh"];
-		vtxSource = srcLoadSource([filePathName cStringUsingEncoding:NSASCIIStringEncoding]);
-		
-		filePathName = [[NSBundle mainBundle] pathForResource:@"reflect" ofType:@"fsh"];
-		frgSource = srcLoadSource([filePathName cStringUsingEncoding:NSASCIIStringEncoding]);
-		
-		// Build Program
-		m_reflectPrgName = [self buildProgramWithVertexSource:vtxSource withFragmentSource:frgSource
-												  withNormal:YES withTexcoord:NO];
-		
-		srcDestroySource(vtxSource);
-		srcDestroySource(frgSource);
-		
-		m_reflectModelViewUniformIdx = glGetUniformLocation(m_reflectPrgName, "modelViewMatrix");
-		
-		if(m_reflectModelViewUniformIdx < 0)
-		{
-			NSLog(@"No modelViewMatrix in reflection shader");
-		}
-		
-		m_reflectProjectionUniformIdx = glGetUniformLocation(m_reflectPrgName, "modelViewProjectionMatrix");
-		
-		if(m_reflectProjectionUniformIdx < 0)
-		{
-			NSLog(@"No modelViewProjectionMatrix in reflection shader");
-		}
-		
-		m_reflectNormalMatrixUniformIdx = glGetUniformLocation(m_reflectPrgName, "normalMatrix");
-		
-		if(m_reflectNormalMatrixUniformIdx < 0)
-		{
-			NSLog(@"No normalMatrix in reflection shader");
-		}
-#endif // RENDER_REFLECTION
 		
 		////////////////////////////////////////////////
 		// Set up OpenGL state that will never change //
@@ -1128,16 +925,6 @@ static GLsizei GetGLTypeSize(GLenum type)
 	[self destroyProgram:m_characterPrgName];
 	
 	mdlDestroyModel(m_characterModel);
-
-#if RENDER_REFLECTION
-	[self destroyFBO:m_reflectFBOName];
-	
-	[self destroyVAO:m_reflectVAOName];
-	
-	[self destroyProgram:m_reflectPrgName];
-	
-	mdlDestroyModel(m_quadModel);
-#endif // RENDER_REFLECTION
 	
 	[super dealloc];	
 }
