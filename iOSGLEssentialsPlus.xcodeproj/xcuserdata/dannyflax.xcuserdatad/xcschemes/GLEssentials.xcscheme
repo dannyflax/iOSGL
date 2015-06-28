@@ -17,7 +17,7 @@
                BlueprintIdentifier = "1D6058900D05DD3D006BFB54"
                BuildableName = "GLDestroyPhysics.app"
                BlueprintName = "GLEssentials"
-               ReferencedContainer = "container:GLDestroyPhysics.xcodeproj">
+               ReferencedContainer = "container:iOSGLEssentialsPlus.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -35,7 +35,7 @@
             BlueprintIdentifier = "1D6058900D05DD3D006BFB54"
             BuildableName = "GLDestroyPhysics.app"
             BlueprintName = "GLEssentials"
-            ReferencedContainer = "container:GLDestroyPhysics.xcodeproj">
+            ReferencedContainer = "container:iOSGLEssentialsPlus.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </TestAction>
@@ -55,7 +55,7 @@
             BlueprintIdentifier = "1D6058900D05DD3D006BFB54"
             BuildableName = "GLDestroyPhysics.app"
             BlueprintName = "GLEssentials"
-            ReferencedContainer = "container:GLDestroyPhysics.xcodeproj">
+            ReferencedContainer = "container:iOSGLEssentialsPlus.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -74,7 +74,7 @@
             BlueprintIdentifier = "1D6058900D05DD3D006BFB54"
             BuildableName = "GLDestroyPhysics.app"
             BlueprintName = "GLEssentials"
-            ReferencedContainer = "container:GLDestroyPhysics.xcodeproj">
+            ReferencedContainer = "container:iOSGLEssentialsPlus.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

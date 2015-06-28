@@ -488,8 +488,7 @@ demoModel* loadFile(const char* filepathname){
              
              
             while(i<3){
-            
-             //printf("%sLASDF\n",inds[i]);
+
                
              char* comp2 = strtok(inds[i],"/");
               
@@ -511,8 +510,6 @@ demoModel* loadFile(const char* filepathname){
                             break;
                     }
                     
-                    //printf("%i = %s \n",ii,comp2);
-                    //indices[i_i] = strtof(comp2,NULL);
              
                    
              
@@ -594,9 +591,9 @@ demoModel* loadFile(const char* filepathname){
     
     while(i<isize){
         elementArray[i] = i;
-        posArray[i*3] = vertices[((v_order[i]-1)*3)] * 100.0f;
-        posArray[i*3 + 1] = vertices[((v_order[i]-1)*3)+1] * 100.0f;
-        posArray[i*3 + 2] = vertices[((v_order[i]-1)*3)+2] * 100.0f;
+        posArray[i*3] = vertices[((v_order[i]-1)*3)];
+        posArray[i*3 + 1] = vertices[((v_order[i]-1)*3)+1];
+        posArray[i*3 + 2] = vertices[((v_order[i]-1)*3)+2];
         
         
         normalArray[i*3] = normals[((n_order[i]-1)*3)];

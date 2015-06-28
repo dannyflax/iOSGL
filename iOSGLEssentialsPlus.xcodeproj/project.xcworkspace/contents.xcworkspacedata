@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:GLDestroyPhysics.xcodeproj">
+      location = "self:/Users/dannyflax/Documents/Development/iOSGL_github/iOSGLEssentialsPlus.xcodeproj">
    </FileRef>
 </Workspace>

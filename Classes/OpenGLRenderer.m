@@ -130,26 +130,15 @@ GLboolean m_useVBOs;
 	
     
     
-	// Calculate the projection matrix
-	mtxLoadPerspective(projection, 30, (float)m_viewWidth / (float)m_viewHeight,5.0,10000);
-	
-    //mtxRotateYApply(projection, M_PI);
-    
+    mtxLoadPerspective(projection, 90, (float)m_viewWidth / (float)m_viewHeight,5.0,10000);
+
     
 	// Calculate the modelview matrix to render our character 
 	//  at the proper position and rotation
-	mtxLoadTranslate(modelView, 0, 150, -2050);
+    mtxLoadTranslate(modelView, 0, 150, -450);
+    mtxRotateXApply(modelView, -90.0f);
+    mtxRotateApply(modelView, m_characterAngle, 0.7, 0.3, 1);
     
-    mtxRotateYApply(modelView, m_characterAngle);
-    
-	mtxRotateXApply(modelView, 50.0f);
-    
-    //mtxRotateZApply(modelView, M_PI);
-    
-    
-    
-    
-    //mtxRotateApply(modelView, m_characterAngle, 0.7, 0.3, 1);
 	
 	// Multiply the modelview and projection matrix and set it in the shader
 	mtxMultiply(mvp, projection, modelView);
@@ -623,10 +612,10 @@ static GLsizei GetGLTypeSize(GLenum type)
 		glBindAttribLocation(prgName, NORMAL_ATTRIB_IDX, "inNormal");
 	}
 	
-	if(hasTexcoord)
-	{
-		glBindAttribLocation(prgName, TEXCOORD_ATTRIB_IDX, "inTexcoord");
-	}
+//	if(hasTexcoord)
+//	{
+//		glBindAttribLocation(prgName, TEXCOORD_ATTRIB_IDX, "inTexcoord");
+//	}
 	
 	//////////////////////////////////////
 	// Specify and compile VertexShader //
@@ -800,8 +789,6 @@ static GLsizei GetGLTypeSize(GLenum type)
 {
 	if((self = [super init]))
 	{
-		NSLog(@"%s %s", glGetString(GL_RENDERER), glGetString(GL_VERSION));
-		
 		////////////////////////////////////////////////////
 		// Build all of our and setup initial state here  //
 		// Don't wait until our real time run loop begins //
@@ -823,7 +810,7 @@ static GLsizei GetGLTypeSize(GLenum type)
 		// Load our character model //
 		//////////////////////////////
 		
-		filePathName = [[NSBundle mainBundle] pathForResource:@"finaltop2" ofType:@"obj"];
+		filePathName = [[NSBundle mainBundle] pathForResource:@"monkey" ofType:@"obj"];
 		m_characterModel = loadFile([filePathName cStringUsingEncoding:NSASCIIStringEncoding]);
 		
 		// Build Vertex Buffer Objects (VBOs) and Vertex Array Object (VAOs) with our model data
@@ -841,20 +828,6 @@ static GLsizei GetGLTypeSize(GLenum type)
 			mdlDestroyModel(m_characterModel);
 			m_characterModel = NULL;
 		}
-	
-		
-		////////////////////////////////////
-		// Load texture for our character //
-		////////////////////////////////////
-		
-		filePathName = [[NSBundle mainBundle] pathForResource:@"DreidelTextureMap" ofType:@"png"];
-		demoImage *image = imgLoadImage([filePathName cStringUsingEncoding:NSASCIIStringEncoding], false);
-		
-		// Build a texture object with our image data
-		m_characterTexName = [self buildTexture:image];
-		
-		// We can destroy the image once it's loaded into GL
-		imgDestroyImage(image);
 	
 		
 		////////////////////////////////////////////////////

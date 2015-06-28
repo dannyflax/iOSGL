@@ -59,10 +59,8 @@ precision highp float;
 //             above.
 
 #if __VERSION__ >= 140
-in vec2      varTexcoord;
 out vec4     fragColor;
 #else
-varying vec2 varTexcoord;
 varying vec3 varNormal;
 #endif
 
@@ -71,13 +69,12 @@ float NdotL;
 
 void main (void)
 {
-	#if __VERSION__ >= 140
-	fragColor = texture(diffuseTexture, varTexcoord.st, 0.0);
-	#else
     NdotL = dot(varNormal, vec3(0.0,0.0,1.0));
-    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0)*NdotL;
-//    gl_FragColor = texture2D(diffuseTexture, varTexcoord.st, 0.0)*NdotL;
-	#endif
+	#if __VERSION__ >= 140
+	fragColor = vec4(0.0, 0.0, 1.0, 1.0)*NdotL;
+	#else
     
-    //texture2D(diffuseTexture, varTexcoord.st, 0.0);
+    gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0)*NdotL;
+
+	#endif
 }

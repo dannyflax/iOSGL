@@ -63,14 +63,10 @@ uniform mat3 normalMatrix;
 
 #if __VERSION__ >= 140
 in vec4  inPosition;  
-in vec2  inTexcoord;
-out vec2 varTexcoord;
 #else
 attribute vec3 inNormal;
-attribute vec4 inPosition;  
-attribute vec2 inTexcoord;
+attribute vec4 inPosition;
 varying vec3  varNormal;
-varying vec2 varTexcoord;
 #endif
 
 void main (void) 
@@ -89,8 +85,4 @@ void main (void)
 	gl_Position = (modelViewProjectionMatrix * pos);
     
     varNormal = normalize(normalMatrix * inNormal);
-    
-	// Pass the unmodified texture coordinate from the vertex buffer
-	// directly down to the rasterizer.
-    varTexcoord = inTexcoord;
 }
